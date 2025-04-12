@@ -141,7 +141,7 @@ static bool piece__already_played(quarto_t *q, piece_t p) {
   return false;
 }
 
-static bool check__line(quarto_t *q) {
+static bool check__line(const quarto_t *q) {
   for (int j = 0; j < 4; ++j) {
     if ((q->summary >> (31 - j * 4) & 1) == 0) {
       continue;
@@ -166,7 +166,7 @@ static bool check__line(quarto_t *q) {
   return false;
 }
 
-static bool check__column(quarto_t *q) {
+static bool check__column(const quarto_t *q) {
   for (int col = 0; col < 4; ++col) {
     if (((q->summary >> (31 - col)) & 1) == 0) {
       continue;
@@ -193,7 +193,7 @@ static bool check__column(quarto_t *q) {
   return false;
 }
 
-static bool check__diagonal(quarto_t *q) {
+static bool check__diagonal(const quarto_t *q) {
   int acc = 0b1111;
   int pred;
   if ((q->summary >> 31 & 1) != 0) {
@@ -235,7 +235,7 @@ static bool check__diagonal(quarto_t *q) {
   return acc != 0;
 }
 
-static bool check__small_square(quarto_t *q) {
+static bool check__small_square(const quarto_t *q) {
   for (int i = 0; i < 3; ++i) { // col
     for (int j = 0; j < 3; ++j) { // line
       int acc = 0b1111;
@@ -264,7 +264,7 @@ end_square:
   return false;
 }
 
-static bool check__huge_square(quarto_t *q) {
+static bool check__huge_square(const quarto_t *q) {
   for (int i = 0; i < 2; ++i) { // col
     for (int j = 0; j < 2; ++j) { // line
       int acc = 0b1111;
@@ -293,7 +293,7 @@ end_square:
   return false;
 }
 
-static bool check__rot_square(quarto_t *q) {
+static bool check__rot_square(const quarto_t *q) {
   int dx[] = {
     -1, 0, 1, 0
   };
