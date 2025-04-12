@@ -113,7 +113,7 @@ typedef enum {
 typedef enum {
   PLAYER1 = 0b0,
   PLAYER2 = 0b1,
-  NEITHER
+  NEITHER = 0b10
 } player_t;
 
 typedef enum {

@@ -81,9 +81,15 @@ uint16_t quarto_summary(const quarto_t *q) {
   return (uint16_t) (q->summary >> 16);
 }
 
+// check_over: Retourne vrai si le jeu est fini et qu'il ne sagit pas d'une
+//    égalité. faux dans le cas contraire.
+static bool check_over(quarto_t *q);
+
 player_t quarto_winner(const quarto_t *q) {
-  return quarto_is_game_over(q) ? (quarto_whos_turn(q)
-    == PLAYER1 ? PLAYER2 : PLAYER1) : NEITHER;
+  if (quarto_is_game_over(q) && check_over(q)) {
+    return quarto_whos_turn(q) == PLAYER1 ? PLAYER2 : PLAYER1;
+  }
+  return NEITHER;
 }
 
 piece_t quarto_current_piece(const quarto_t *q) {
@@ -373,6 +379,31 @@ static bool check__rot_square(quarto_t *q) {
   return false;
 }
 
+bool check_over(quarto_t *q) {
+  switch (quarto_difficulty(q)) {
+    case D4:
+      if (check__rot_square(q)) {
+        return true;
+      }
+      [[fallthrough]];
+    case D3:
+      if (check__huge_square(q)) {
+        return true;
+      }
+      [[fallthrough]];
+    case D2:
+      if (check__small_square(q)) {
+        return true;
+      }
+      [[fallthrough]];
+    case D1:
+      if (check__line(q) || check__column(q) || check__diagonal(q)) {
+        return true;
+      }
+  }
+  return false;
+}
+
 quarto_return_t quarto_play(quarto_t *q, piece_t p, position_t pos) {
   if (quarto_is_game_over(q)) {
     return GAME_ALREADY_OVER;
@@ -388,33 +419,15 @@ quarto_return_t quarto_play(quarto_t *q, piece_t p, position_t pos) {
   }
   // flip le bit du tour
   q->summary ^= M_TURN_BIT;
-  // augmente le compteur du tour
-  q->summary += 0b0000'0000'0000'0000'0000'0000'0010'0000;
   q->summary |= 1 << (31 - ps);
   // on met la pièce sur le plateau
   q->board |= p2 & pos;
   SELECT_PIECE(q->summary, (uint32_t) (p & P15));
-  switch (quarto_difficulty(q)) {
-    case D4:
-      if (check__rot_square(q)) {
-        q->summary |= M_OVER_BIT;
-      }
-      [[fallthrough]];
-    case D3:
-      if (check__huge_square(q)) {
-        q->summary |= M_OVER_BIT;
-      }
-      [[fallthrough]];
-    case D2:
-      if (check__small_square(q)) {
-        q->summary |= M_OVER_BIT;
-      }
-      [[fallthrough]];
-    case D1:
-      if (check__line(q) || check__column(q) || check__diagonal(q)) {
-        q->summary |= M_OVER_BIT;
-      }
+  if (quarto_game_turn(q) == MAX_TURN || check_over(q)) {
+    q->summary |= M_OVER_BIT;
   }
+  // augmente le compteur du tour
+  q->summary += 0b0000'0000'0000'0000'0000'0000'0010'0000;
   return NO_ERROR;
 }
 
