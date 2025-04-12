@@ -83,7 +83,7 @@ uint16_t quarto_summary(const quarto_t *q) {
 
 // check_over: Retourne vrai si le jeu est fini et qu'il ne sagit pas d'une
 //    égalité. faux dans le cas contraire.
-static bool check_over(quarto_t *q);
+static bool check_over(const quarto_t *q);
 
 player_t quarto_winner(const quarto_t *q) {
   if (quarto_is_game_over(q) && check_over(q)) {
@@ -379,7 +379,7 @@ static bool check__rot_square(quarto_t *q) {
   return false;
 }
 
-bool check_over(quarto_t *q) {
+bool check_over(const quarto_t *q) {
   switch (quarto_difficulty(q)) {
     case D4:
       if (check__rot_square(q)) {
